@@ -1,0 +1,1559 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Caio AD — Portfolio & Encomendas</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+ <style>
+    /* ------------------------------------------- */
+    /* VARIAVEIS DE COR E TEMA */
+    /* ------------------------------------------- */
+    :root{
+      /* CORES BASE */
+      --color-primary: #0a69a8; /* Azul */
+      --color-secondary: #7a0d0d; /* Vermelho */
+
+      /* TEMA ESCURO (DARK MODE) - PADRÃO */
+      --background-color: #1b1b1b;
+      --text-color: rgba(221,221,221,0.85); /* Muted */
+      --primary-text-color: #dddddd; /* Branco */
+      --highlight-color: var(--color-primary);
+      --section-bg: rgba(255,255,255,0.03);
+      --card-bg: rgba(255,255,255,0.05);
+      --navbar-bg-base: #0a0a0a; /* Nova base para degradê */
+      --navbar-bg-end: #141414;
+      --navbar-bg: linear-gradient(180deg, var(--navbar-bg-base), var(--navbar-bg-end));
+      --navbar-border: rgba(255,255,255,0.06);
+      /* Ícone: Lua para indicar a troca para o modo Escuro */
+      --theme-icon: '\f186';
+      --theme-icon-color: #f7e034;
+    }
+
+    /* TEMA CLARO (LIGHT MODE) */
+    .light-mode {
+      --background-color: #ffffff;
+      --text-color: #444444;
+      --primary-text-color: #1b1b1b;
+      --highlight-color: #084977; /* Azul Escuro */
+      --section-bg: #f5f5f5;
+      --card-bg: #ffffff;
+      --navbar-bg-base: #f7f7f7; /* Nova base para degradê */
+      --navbar-bg-end: #ffffff;
+      --navbar-bg: linear-gradient(180deg, var(--navbar-bg-base), var(--navbar-bg-end));
+      --navbar-border: rgba(0,0,0,0.08);
+      /* Ícone: Sol para indicar a troca para o modo Claro */
+      --theme-icon: '\f185';
+      --theme-icon-color: #ffa500;
+    }
+
+    /* TEMA CLARO AUTOMÁTICO (quando o sistema prefere light E não há override manual) */
+    @media (prefers-color-scheme: light) {
+      body:not(.dark-mode-override) {
+        --background-color: #ffffff;
+        --text-color: #444444;
+        --primary-text-color: #1b1b1b;
+        --highlight-color: #084977;
+        --section-bg: #f5f5f5;
+        --card-bg: #ffffff;
+        --navbar-bg-base: #f7f7f7;
+        --navbar-bg-end: #ffffff;
+        --navbar-bg: linear-gradient(180deg, var(--navbar-bg-base), var(--navbar-bg-end));
+        --navbar-border: rgba(0,0,0,0.08);
+        --theme-icon: '\f185';
+        --theme-icon-color: #ffa500;
+      }
+      /* CORREÇÃO DO LOGO NO TEMA DE SISTEMA CLARO */
+      .navbar-brand img {
+        filter: none;
+      }
+    }
+    
+    /* ------------------------------------------- */
+    /* ESTILOS GERAIS */
+    /* ------------------------------------------- */
+    html{
+      overflow-x: hidden; /* FIX 1: Adicionado para garantir a remoção da rolagem horizontal */
+    }
+    body{
+      background: var(--background-color);
+      color: var(--text-color);
+      font-family: 'Inter', system-ui, sans-serif;
+      scroll-behavior: smooth;
+      transition: background-color 0.5s, color 0.5s; /* Transição suave do tema */
+      overflow-x: hidden; /* **CORREÇÃO: Impede a rolagem horizontal** */
+    }
+    
+    /* Adiciona transição suave para elementos que mudam de cor */
+    a, button, input, textarea, select, .card-portfolio, .navbar, .social-btn, .theme-toggle-btn {
+        transition: background-color 0.5s, color 0.5s, border-color 0.5s, box-shadow 0.5s, filter 0.5s;
+    }
+    
+    /* Cores de seleção de texto (melhora UX em ambos os temas) */
+    ::selection {
+      background: var(--highlight-color);
+      color: var(--primary-text-color);
+    }
+
+
+    h1, h2, h3, h4, h5, h6, strong {
+      color: var(--primary-text-color);
+    }
+
+    /* BARRA DE NAVEGAÇÃO */
+    .navbar {
+      background: linear-gradient(135deg, #0c0c0c, #1a1a1a, #0f0f0f);
+      border-bottom: 1px solid var(--navbar-border);
+      position: sticky; /* opcional, mas ajuda o sticky-top */
+      top: 0;
+      overflow: visible; /* ESSENCIAL! */
+      z-index: 1030;     /* CORREÇÃO: Reduzido de 9999 para 1030 para evitar sobreposição com Modais/Lightbox (que usam z-index a partir de 1050) */
+    }
+    
+    /* CORREÇÃO DO LOGO PRETO NO TEMA ESCURO (Dark Mode Padrão) */
+    .navbar-brand img {
+      height: 40px;
+      width: auto;
+      filter: invert(1); /* Inverte o logo preto para branco no fundo escuro */
+      transition: filter 0.5s ease;
+    }
+    
+    /* LÓGICA CORRIGIDA: Remove o filtro no Light Mode */
+    .light-mode .navbar-brand img {
+        filter: none;
+    }
+
+
+    /* EFEITO BRILHO METÁLICO (SHINE) */
+    .navbar-shine::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(
+          120deg,
+          transparent 40%,
+          rgba(255,255,255,0.08) 50%,
+          rgba(255,255,255,0.25) 55%,
+          rgba(255,255,255,0.08) 60%,
+          transparent 70%
+      );
+      transform: skewX(-25deg);
+      animation: metalShine 18s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes metalShine {
+      0%   { left: -150%; }
+      25%  { left: 120%; }
+      100% { left: 120%; }
+    }
+    
+    /* BOTÃO DE TEMA */
+    .theme-toggle-btn {
+        background: var(--section-bg);
+        border: 1px solid var(--navbar-border);
+        color: var(--theme-icon-color);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-size: 1.2rem;
+    }
+    
+    .theme-toggle-btn::before {
+        font-family: 'Font Awesome 6 Free';
+        content: var(--theme-icon);
+        font-weight: 900;
+    }
+    
+    .theme-toggle-btn:hover {
+        background: var(--card-bg);
+    }
+    
+    /* Demais estilos */
+    .nav-link{
+      color: var(--primary-text-color) !important;
+      opacity: .85;
+      margin-left: 5px;
+      padding: 0.5rem 1rem !important;
+      border-radius: 5px;
+    }
+
+    .nav-link:hover{
+      color: var(--highlight-color) !important;
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* HERO */
+    .hero{
+      position:relative;
+      min-height:75vh;
+      display:flex;
+      align-items:center;
+      color:white;
+      padding-top: 100px;
+      padding-bottom: 50px;
+    }
+
+    .hero h1 {
+    color: #ffffff !important;
+}
+.hero p.lead {
+    color: #ffffff !important;
+}
+
+
+    .hero-bg{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      background-image:url('background.jpeg');
+      filter:brightness(.45);
+    }
+
+    /* HERO OVERLAY REVISADO PARA SUAVIDADE E HARMONIA COM O TEMA */
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      /* Gradiente: Totalmente transparente no topo (0%), permanece transparente até 70%, 
+         e faz a transição suave e direta para a cor de fundo do tema (dark ou light) na base (100%). */
+      background: linear-gradient(180deg, transparent 0%, transparent 70%, var(--background-color) 100%);
+      transition: background 0.5s ease;
+    }
+
+    .hero h1{
+      font-size:clamp(2.5rem,5vw,3.8rem);
+      font-weight:700;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    /* BOTÕES */
+    .btn-primary-custom{
+      background: linear-gradient(135deg, #0a69a8, #084977);
+      border: none;
+      padding: 0.9rem 1.6rem;
+      color: #fff !important;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+
+      /* Efeito profissional */
+      box-shadow: 0 4px 15px rgba(8, 73, 119, 0.35);
+      transition: 0.3s ease-in-out;
+      text-decoration: none !important;
+    }
+
+    .btn-primary-custom:hover{
+      background: linear-gradient(135deg, #7a0d0d, #520707);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(77, 8, 8, 0.45);
+    }
+
+   .btn-ghost {
+      background: rgba(255,255,255,0.03);
+      padding: 0.9rem 1.6rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff !important;
+      font-weight: 600;
+      transition: 0.3s ease-in-out;
+      text-decoration: none !important;
+  }
+
+   .btn-ghost:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.3);
+  }
+
+    .social-btn{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--navbar-border);
+      color: var(--text-color) !important;
+      font-weight: 500;
+      transition: 0.25s ease-in-out;
+      text-decoration: none !important;
+    }
+
+    .social-btn img{
+      height:20px;
+      width:20px;
+      object-fit:contain;
+    }
+
+    .social-btn:hover{
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-3px);
+    }
+    
+    
+    .card-portfolio{
+      background: var(--card-bg);
+      border:1px solid var(--navbar-border);
+      border-radius:12px;
+      overflow:hidden;
+      transition:.3s;
+    }
+
+    .card-portfolio:hover{
+      transform:translateY(-8px);
+      box-shadow: 0 18px 36px rgba(0,0,0,0.7);
+    }
+
+    .card-portfolio .thumb{
+      background-size:cover;
+      background-position:center;
+      height:300px;
+    }
+
+    /* GALERIA */
+    .gallery-img-wrapper{
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border-radius: .5rem;
+      cursor: pointer;
+      position: relative;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--navbar-border);
+      transition: box-shadow .3s;
+    }
+
+    .gallery-img-wrapper:hover{
+      box-shadow: 0 0 15px var(--highlight-color);
+    }
+
+    .gallery-img{
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      transition: transform .3s ease;
+      padding: 5px;
+    }
+
+    .gallery-img-wrapper:hover .gallery-img{
+      transform: scale(0.98);
+    }
+
+    /* LIGHTBOX */
+    #lightboxModal .modal-body{
+      background: var(--background-color);
+      padding: 0;
+    }
+    #lightboxModal .modal-dialog {
+        max-width: 95%;
+    }
+    
+/* SPLASH COM FUNDO BLOQUEADO COMPLETAMENTE */
+#splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    /* Fundo completamente sólido */
+    background: #000; 
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.7s ease-out, visibility 0.7s ease-out;
+}
+
+
+/* SUMIR */
+#splash-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* LOGO MAIOR E MAIS CINEMÁTICO */
+#splash-logo {
+    /* height: 540px; <-- REMOVIDO: FIX 2 */
+    width: auto;
+
+    /* NOVO: Tornar a imagem responsiva para mobile - FIX 2 */
+    max-height: 80vh; 
+    max-width: 80vw;
+    height: auto; 
+    
+    /* Luz difusa bem forte */
+    filter: drop-shadow(0 0 40px rgba(255,255,255,0.8))
+            drop-shadow(0 0 90px rgba(255,255,255,0.5))
+            drop-shadow(0 0 110px rgba(255,255,255,0.3));
+
+    animation: logoEnter 1s ease-out forwards,
+               logoGlow 2.5s ease-in-out infinite alternate;
+    opacity: 0;
+}
+
+
+/* ENTRADA DO LOGO */
+@keyframes logoEnter {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* BRILHO DIFUSO + PULSAÇÃO */
+@keyframes logoGlow {
+    0% {
+        filter: drop-shadow(0 0 20px rgba(255,255,255,0.45))
+                drop-shadow(0 0 50px rgba(255,255,255,0.25));
+    }
+    100% {
+        filter: drop-shadow(0 0 35px rgba(255,255,255,0.6))
+                drop-shadow(0 0 70px rgba(255,255,255,0.35));
+    }
+}
+
+    
+    /* Outras seções */
+    #bio img {
+      /* Estas regras não são mais necessárias aqui, mas mantemos para evitar conflitos */
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    #encomendas {
+        background: var(--section-bg) !important;
+    }
+    
+    #contato .rounded {
+        background: var(--section-bg) !important;
+        border: 1px solid var(--navbar-border) !important;
+    }
+
+    footer {
+        background: #0d0d0d !important;
+        border-top: 1px solid var(--navbar-border) !important;
+    }
+
+    /* SEÇÃO DE ENCOMENDAS — PREMIUM */
+    #encomendas {
+        background: rgba(255,255,255,0.02) !important;
+        border-top: 1px solid var(--navbar-border);
+        border-bottom: 1px solid var(--navbar-border);
+        padding-top: 60px;
+        padding-bottom: 80px;
+    }
+
+    #encomendas .form-container {
+        background: var(--card-bg);
+        border: 1px solid var(--navbar-border);
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    #encomendas h3 {
+        font-size: 1.9rem;
+        font-weight: 700;
+    }
+
+    /* Inputs mais modernos - Dark Mode */
+    #encomendas input, 
+    #encomendas textarea, 
+    #encomendas select {
+        background: rgba(255,255,255,0.05) !important;
+        color: var(--primary-text-color) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 10px !important;
+    }
+
+    #encomendas input:focus,
+    #encomendas textarea:focus,
+    #encomendas select:focus {
+        border-color: var(--highlight-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(8,73,119,0.25) !important;
+    }
+
+    /* PLACEHOLDER LEGÍVEL - Dark Mode */
+    #encomendas ::placeholder {
+        color: rgba(255,255,255,0.65) !important;  
+        opacity: 1;
+    }
+    
+    /* Select e Options - Dark Mode */
+    #encomendas select {
+        background-color: rgba(0,0,0,0.35) !important;
+        color: #fff !important;
+    }
+
+    #encomendas select option {
+      background-color: #111 !important;
+      color: #fff !important;
+    }
+    
+    /* BORDAS VISÍVEIS NO LIGHT MODE PARA FORMULÁRIOS */
+    .light-mode #encomendas input,
+    .light-mode #encomendas textarea,
+    .light-mode #encomendas select {
+        background: #ffffff !important;
+        border: 1px solid #ccc !important;   /* borda clara porém VISÍVEL */
+        color: #000 !important;
+    }
+
+    .light-mode #encomendas input:focus,
+    .light-mode #encomendas textarea:focus,
+    .light-mode #encomendas select:focus {
+        border-color: #0a69a8 !important;  /* cor bonita para foco no light mode */
+        box-shadow: 0 0 0 0.2rem rgba(10,105,168,0.25) !important;
+    }
+    
+    /* PLACEHOLDER LEGÍVEL - Light Mode */
+    .light-mode #encomendas ::placeholder {
+        color: rgba(0,0,0,0.55) !important;
+    }
+
+    /* Select e Options - Light Mode */
+    .light-mode #encomendas select {
+      background-color: #f2f2f2 !important;
+      color: #111 !important;
+    }
+
+    .light-mode #encomendas select option {
+      background-color: #fff !important;
+      color: #000 !important;
+    }
+
+
+    /* ----------------------------- */
+    /* NAVBAR LIGHT MODE — CORREÇÃO */
+    /* ----------------------------- */
+
+    .light-mode .navbar {
+        background: linear-gradient(135deg, #f7f7f7, #e9e9e9, #ffffff) !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+    }
+
+    .light-mode .navbar-brand,
+    .light-mode .navbar-nav .nav-link,
+    .light-mode .navbar-text {
+        color: #111 !important;
+    }
+
+    /* Estilo do texto da marca */
+    .navbar-brand span {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 1.05rem;
+    }
+
+    /* Modo escuro */
+    .navbar-brand span {
+        color: #ffffff !important;
+    }
+
+    /* Modo claro */
+    .light-mode .navbar-brand span {
+        color: #111111 !important;
+    }
+
+    #encomendas h3 {
+    text-align: center;
+    }
+
+    #encomendas p.small {
+        text-align: center;
+        opacity: 0.85;
+    }
+
+    #encomendas .form-container {
+        margin-top: 10px;
+    }
+
+    .btn-premium {
+        padding: 0.85rem 1.8rem;
+        border-radius: 14px;
+        font-weight: 600;
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.08);
+        color: #fff !important;
+        letter-spacing: 0.3px;
+        transition: 0.35s ease;
+        text-decoration: none !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    }
+
+    .btn-premium:hover {
+        background: rgba(255,255,255,0.18);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+.section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: .5px;
+    color: var(--highlight-color);
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.section-title::after {
+    content: "";
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--highlight-color), transparent);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-radius: 2px;
+}
+
+.section-title-big {
+    font-size: 2.3rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #ffffff 0%, var(--highlight-color) 100%);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 18px rgba(8,73,119,0.25);
+}
+
+.section-title-clean {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    letter-spacing: .5px;
+}
+
+.section-subtitle {
+    margin-top: -5px;
+    margin-bottom: 20px;
+    font-size: .95rem;
+    color: var(--text-color);
+    opacity: .75;
+}
+
+/* --- SOCIAL BUTTON FIXO (NÃO MUDA COM O TEMA) --- */
+/* Estilos fixos para o visual "ghost" no Dark Mode */
+.social-btn {
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.20);
+    color: #ffffff !important; /* Texto branco no Dark Mode */
+}
+
+/* NOVO: Sobrescreve a cor do texto para Escuro no Light Mode para visibilidade */
+.light-mode .social-btn {
+    color: #1b1b1b !important; /* Texto escuro para ser legível */
+}
+
+/* Estilos de hover */
+.social-btn:hover,
+.light-mode .social-btn:hover {
+    background: rgba(255,255,255,0.18) !important;
+    border-color: rgba(255,255,255,0.25) !important;
+    transform: translateY(-3px);
+}
+
+
+/* ------------------------------------------- */
+/* NOVO ESTILO: EFEITO MOEDA/GIRO (ARTISTA.PNG) */
+/* CORREÇÃO DO FORMATO OVAL E DO GIRO DA BORDA */
+/* ------------------------------------------- */
+
+/* CONTAINER PARA O EFEITO DE MOEDA */
+.artist-coin-wrapper {
+  /* Tamanho fixo para garantir que seja um CÍRCULO PERFEITO */
+  width: 250px; 
+  height: 250px; 
+  max-width: 100%; /* Garante que não ultrapasse a coluna no celular */
+  
+  perspective: 1000px; /* Crucial para o efeito 3D */
+  position: relative; 
+  cursor: pointer; 
+  border-radius: 50%; 
+  overflow: hidden; 
+  
+  /* Estilização da "moeda" */
+  background: var(--card-bg); 
+  border: 2px solid var(--highlight-color); 
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+
+  /* A TRANSIÇÃO AGORA VAI PARA O CONTAINER (PARA GIRAR A BORDA JUNTO) */
+  transition: transform 0.8s ease-in-out, box-shadow 0.3s ease, border-color 0.5s; 
+  margin: 0 auto; /* Centraliza na coluna */
+}
+
+/* IMAGEM DO ARTISTA DENTRO DO CONTAINER */
+.artist-coin-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  border-radius: 50%; 
+  display: block; 
+  /* A transição da imagem não precisa mais de rotação, ela apenas segue o container */
+  backface-visibility: hidden; 
+}
+
+/* EFEITO AO PASSAR O MOUSE: GIRA O CONTAINER INTEIRO */
+.artist-coin-wrapper:hover {
+  transform: rotateY(360deg); /* Faz o giro completo */
+  box-shadow: 0 8px 25px var(--highlight-color); /* Sombra mais intensa no hover */
+}
+
+/* ------------------------------------------- */
+/* CORREÇÕES ACORDEÃO PARA LEGIBILIDADE */
+/* ------------------------------------------- */
+
+/* Título do Acordeão (Botão) - Dark Mode: MAIOR CONTRASTE AQUI! */
+.accordion-button {
+    color: var(--primary-text-color) !important; /* Cor principal (Branco/Off-white) */
+    background-color: #0c0c0c !important; /* **CORREÇÃO: Fundo mais escuro para maximizar o contraste** */
+    border: 1px solid var(--navbar-border) !important;
+}
+
+/* Título do Acordeão Aberto */
+.accordion-button:not(.collapsed) {
+    color: var(--highlight-color) !important; /* Cor de Destaque (Azul) quando aberto */
+    background-color: var(--background-color) !important; /* Fundo escuro */
+    box-shadow: none !important;
+}
+
+/* Subtítulos (H6) dentro do Acordeão - Melhorando o contraste */
+.accordion-body h6 {
+    color: var(--highlight-color) !important; /* Cor de Destaque (Azul) para subtítulos */
+    font-weight: 700 !important;
+}
+
+/* Corpo do Acordeão */
+.accordion-body {
+    background-color: var(--background-color); /* Cor de fundo principal */
+    color: var(--text-color);
+    border: 1px solid var(--navbar-border);
+    border-top: none;
+}
+
+/* Light Mode - Reverte cores se necessário (garantindo que o botão fique visível) */
+.light-mode .accordion-button {
+    color: var(--primary-text-color) !important; /* Preto */
+    background-color: var(--section-bg) !important; /* Fundo cinza claro */
+}
+
+/* ------------------------------------------- */
+/* NOVO ESTILO: MASCOTE FLUTUANTE - INTERATIVO */
+/* ------------------------------------------- */
+.mascote-flutuante {
+    position: fixed;
+    right: 15px; /* Canto inferior direito */
+    bottom: 15px; 
+    z-index: 1000; 
+    width: 150px; 
+    height: auto;
+    cursor: pointer;
+    /* Garante que o hover afete a imagem, não apenas o div */
+    pointer-events: none; 
+}
+
+#mascote-armor-clickable {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease-out, filter 0.5s ease; 
+    pointer-events: auto; 
+    
+    /* Efeito inicial sutil de flutuação */
+    animation: subtleFloat 4s ease-in-out infinite alternate;
+    
+    /* Melhora a qualidade da imagem em fundos coloridos (Dark Mode) */
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+
+/* Animação de flutuação sutil (para movimento constante) */
+@keyframes subtleFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-8px); }
+}
+
+/* ANIMAÇÃO ENGRAÇADA: Faz ele "saltar e girar" */
+#mascote-armor-clickable:hover {
+    /* Move para cima, gira e aumenta ligeiramente */
+    transform: translateY(-20px) rotate(-10deg) scale(1.05);
+    
+    /* Altera o filtro no hover para dar um efeito de "ativação" */
+    filter: drop-shadow(0 4px 15px var(--color-secondary)) 
+            drop-shadow(0 0 5px var(--color-secondary));
+}
+
+/* CORREÇÃO PARA O TEMA CLARO: Garante que a imagem se misture bem */
+.light-mode #mascote-armor-clickable {
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}
+
+.light-mode #mascote-armor-clickable:hover {
+    filter: drop-shadow(0 4px 15px var(--color-secondary));
+}
+
+/* ------------------------------------------- */
+/* NOVO ESTILO: DESTAQUE TWITCH */
+/* ------------------------------------------- */
+.twitch-highlight {
+    background: #9146FF; /* Cor principal da Twitch */
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(145, 70, 255, 0.4);
+    margin-top: 40px;
+}
+
+.twitch-highlight h3 {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.twitch-highlight p {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.btn-twitch {
+    background: #ffffff;
+    color: #9146FF !important;
+    border: none;
+    padding: 0.9rem 2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    transition: 0.3s ease-in-out;
+    text-decoration: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-twitch:hover {
+    background: #f0f0f0;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Light Mode: garante que o bloco de destaque permaneça com as cores da Twitch */
+.light-mode .twitch-highlight h3,
+.light-mode .twitch-highlight p {
+    color: #ffffff !important; 
+}
+   
+</style>
+</head>
+<body>
+
+<div id="splash-screen">
+  <img src="logo.png" alt="Logo Caio AD" id="splash-logo">
+</div>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-shine">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="logo.png" alt="logo">
+      <span class="ms-2 fw-bold" style="color: var(--primary-text-color);">Caio AD Artes</span>
+    </a>
+
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="#home">Início</a></li>
+        <li class="nav-item"><a class="nav-link" href="#bio">Bio</a></li>
+        <li class="nav-item"><a class="nav-link" href="#galeria">Galeria</a></li>
+        <li class="nav-item"><a class="nav-link" href="#encomendas">Encomendas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
+      </ul>
+      
+      <div class="ms-3">
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar tema escuro/claro"></button>
+      </div>
+      
+    </div>
+  </div>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="container position-relative">
+    <div class="row">
+      <div class="col-lg-7">
+        <h1>Caio AD — Ilustrações e Mangás</h1>
+        <p class="lead" style="color: white;">Arte digital, personagens, mangá e ilustrações personalizadas sob encomenda.</p>
+
+        <div class="d-flex flex-wrap gap-3 mt-3">
+          <a href="#encomendas" class="btn-premium">Pedir Encomenda</a>
+          <a href="#galeria" class="btn-ghost">Ver Galeria</a>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block">
+        <div class="card-portfolio mt-3 p-0" style="overflow:hidden;">
+          <img src="main.jpeg?v=2" alt="Arte em Destaque" class="img-fluid" style="border-radius:12px; width:100%; height:auto;">
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="random-effect-container" style="height: 0px; overflow: hidden; position: relative; z-index: -1;"></div>
+<section id="bio" class="container py-5">
+  <div class="row g-5 align-items-center"> 
+    
+    <div class="col-md-4 text-center">
+      <div class="artist-coin-wrapper">
+        <img src="artista.png" alt="Foto do artista">
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <h3 class="section-title">Sobre o Artista</h3>
+
+      <p style="color:var(--text-color)">
+        <strong>Caio Augusto Delfini</strong> ou também conhecido como <strong>CaioAD</strong>,
+        desde criança adorava desenhar monstros que tinha nas histórias e livros. Seu passatempo era desenhar, 
+        fazia bem para sua mente passar algumas horas rabiscando em cadernos e apostilas.
+      </p>
+      <p style="color:var(--text-color)">
+        Depois de um bom tempo decidiu estudar mais a fundo sobre essa área de design e 
+        pesquisou bastante sobre o assunto, mas uma oportunidade para estudar propaganda e 
+        marketing chamou sua atenção  e com isso abrangeu seu conhecimento sobre as suas artes. 
+      </p>
+      <p style="color:var(--text-color)">
+        Durante a faculdade participou de alguns projetos principalmente de quadrinhos nacionais 
+        desenhando algumas histórias e teve seus desenhos publicados na HQuê?!, 
+        um quadrinho criado em Araraquara com um conjunto de artistas. 
+      </p>
+      <p style="color:var(--text-color)">
+        Após a finalização da faculdade também participou de pequenos projetos de jogos, 
+        fazendo parte de equipes de artistas de concepts, o qual gostou bastante e com isso, 
+        em 2016 começou a divulgar sua arte pelas redes sociais como facebook e instagram.
+      </p>
+      <p style="color:var(--text-color)">
+        Tem ainda o sonho de escrever sua primeira história em quadrinhos, 
+        que já está em desenvolvimento e também viu grandes oportunidades de se mostrar mais ao mundo com a participações em eventos. 
+        Hoje, em 2025, Caio continua divulgando seus trabalhos e fazendo lives diárias mostrando o processo de cada um deles e evoluindo com seus traços, 
+        buscando sempre deixar ainda mais com as suas características.
+      </p>
+    
+    </div>
+  </div>
+</section>
+
+<section id="galeria" class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="section-title">Galeria de Artes</h3>
+    <span class="small" style="color:var(--text-color)">Clique em qualquer arte para ampliar</span>
+  </div>
+
+  <div class="row g-4"> <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="1.jpeg">
+        <img src="1.jpeg" class="gallery-img" alt="Arte da Galeria 1">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="2.jpeg">
+        <img src="2.jpeg" class="gallery-img" alt="Arte da Galeria 2">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="3.jpeg">
+        <img src="3.jpeg" class="gallery-img" alt="Arte da Galeria 3">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="4.jpeg">
+        <img src="4.jpeg" class="gallery-img" alt="Arte da Galeria 4">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="5.jpeg">
+        <img src="5.jpeg" class="gallery-img" alt="Arte da Galeria 5">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="6.jpeg">
+        <img src="6.jpeg" class="gallery-img" alt="Arte da Galeria 6">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="6.jpeg">
+        <img src="7.jpeg" class="gallery-img" alt="Arte da Galeria 6">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="8.jpeg">
+        <img src="8.jpeg" class="gallery-img" alt="Arte da Galeria 6">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4">
+      <div class="gallery-img-wrapper rounded"
+           data-bs-toggle="modal" data-bs-target="#lightboxModal"
+           data-src="9.jpeg">
+        <img src="9.jpeg" class="gallery-img" alt="Arte da Galeria 6">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-centered"> <div class="modal-content" style="background:transparent;border:none;">
+      <div class="modal-body p-0">
+        <button type="button" class="btn btn-dark position-absolute m-3" data-bs-dismiss="modal" aria-label="Fechar" style="z-index:99999; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem;">
+            &times;
+        </button>
+        <img id="lightboxImage" src="" alt="imagem ampliada"
+             style="width:100%;height:100vh;object-fit:contain;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="encomendas" class="py-5">
+  <div class="container">
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <h3 class="section-title">Solicitar Encomenda</h3>
+    <p class="small mb-4" style="color:var(--text-color)">
+      Preencha os campos abaixo. Ao enviar, o WhatsApp abrirá automaticamente com a mensagem formatada.
+    </p>
+
+    <div class="form-container">
+      <form id="orderForm" class="row g-3 needs-validation" novalidate>
+
+          <div class="col-md-6">
+            <label for="nome" class="form-label">Nome completo</label>
+            <input type="text" class="form-control" id="nome" required>
+            <div class="invalid-feedback">Informe seu nome.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="email" required>
+            <div class="invalid-feedback">E-mail inválido.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="telefone" class="form-label">Telefone (WhatsApp)</label>
+            <input type="text" class="form-control" id="telefone" placeholder="(16) 9xxxx-xxxx">
+          </div>
+
+          <div class="col-md-6">
+            <label for="tipo" class="form-label">Tipo de Arte</label>
+            <select class="form-select" id="tipo" required>
+              <option value="">Selecione...</option>
+              <option>Ilustração digital - Full color</option>
+              <option>Ilustração digital - PB</option>
+              <option>Chibi / Avatar</option>
+              <option>Sketch</option>
+            </select>
+            <div class="invalid-feedback">Escolha um tipo.</div>
+          </div>
+
+          <div class="col-12">
+            <label for="prazo" class="form-label">Prazo desejado</label>
+            <input type="text" class="form-control" id="prazo" placeholder="Ex: 2 semanas (Se for urgente, mencione!)">
+          </div>
+
+          <div class="col-12">
+            <label for="descricao" class="form-label">Descrição detalhada da encomenda</label>
+            <textarea class="form-control" id="descricao" rows="5"
+                      placeholder="Explique referências, pose, estilo, número de personagens, cores, etc. Quanto mais detalhes, melhor!"
+                      required></textarea>
+            <div class="invalid-feedback">Descreva o pedido.</div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="termos" required>
+              <label class="form-check-label" for="termos">
+                Li e aceito os <a data-bs-toggle="collapse" href="#termosAccordion" role="button" class="text-info">Termos Gerais</a>.
+              </label>
+              <div class="invalid-feedback">Você precisa aceitar os termos.</div>
+            </div>
+          </div>
+
+          <div class="col-12 d-grid mt-4">
+            <button type="submit" class="btn-primary-custom">Enviar Detalhes via WhatsApp <i class="fab fa-whatsapp ms-2"></i></button>
+          </div>
+
+        </form>
+
+        <div id="formAlert" class="mt-3" style="display:none;"></div>
+
+        <div class="accordion mt-4" id="termosAccordion">
+          
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#t1">
+                1. Escopo e Cancelamento
+              </button>
+            </h2>
+            <div id="t1" class="accordion-collapse collapse">
+              <div class="accordion-body">
+                <p>O Contratado (Caio Augusto Delfini) reserva-se o direito de recusar qualquer pedido.</p>
+                
+                <h6 class="fw-bold mt-3">Cancelamento e Reembolso</h6>
+                <ul>
+                    <li>Não é permitido reembolso após o início do trabalho.</li>
+                    <li>Se o pagamento total foi feito antecipadamente (em dinheiro), 50% do valor será reembolsado.</li>
+                    <li>O reembolso será feito via transferência bancária. **Não é permitido estorno ou contestação de pagamento (chargeback) via Paypal.**</li>
+                    <li>**Qualquer contestação de pagamento (chargeback) no PayPal resultará no cancelamento imediato da encomenda.**</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#t2">
+                2. Prazos, Revisões e Entrega
+              </button>
+            </h2>
+            <div id="t2" class="accordion-collapse collapse">
+              <div class="accordion-body">
+                <h6 class="fw-bold">Prazos e Processo</h6>
+                <ul>
+                    <li>O tempo necessário para a conclusão da encomenda varia de **1 semana a 3 meses**, dependendo da complexidade.</li>
+                    <li>O Contratado preparará até **03 esboços (sketches)** durante o processo de preparação, dentro do design básico inicial.</li>
+                    <li>O Contratante pode solicitar **pequenas alterações** dentro do design inicial e no limite dos 3 esboços.</li>
+                    <li>Será adicionada uma taxa se o Contratante quiser alterar o design final ou solicitar mudanças em algo que já foi aprovado previamente.</li>
+                </ul>
+                <h6 class="fw-bold mt-3">Entrega</h6>
+                <ul>
+                    <li>O Contratante receberá a arte em **alta resolução** (aprox. 210x297 mm a 600 DPI) e uma versão menor para uso na web.</li>
+                    <li>O formato do arquivo final é geralmente **PNG**.</li>
+                    <li>Não há produto físico. Impressões são terceirizadas e dependem de solicitação e disponibilidade.</li>
+                    <li>Para o Contratante receber o arquivo aberto da arte (.PSD ou .CLIP) deve ser conversado antes com o Contratado.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#t3">
+                3. Pagamento
+              </button>
+            </h2>
+            <div id="t3" class="accordion-collapse collapse">
+              <div class="accordion-body">
+                <h6 class="fw-bold">Detalhes de Pagamento</h6>
+                <ul>
+                    <li>O pagamento pode ser feito em **Real (R$) ou Dólar (USD)**.</li>
+                    <li>As formas de pagamento aceitas são **PayPal, Pix ou transferência bancária**.</li>
+                    <li>O serviço pode ser pago **antecipadamente** ou dividido em **duas parcelas** (uma em dinheiro e a outra após a conclusão do projeto).</li>
+                    <li>Pagamentos não serão aceitos antes que o Contratado concorde em realizar o serviço.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#t4">
+                4. Direitos Autorais e Uso
+              </button>
+            </h2>
+            <div id="t4" class="accordion-collapse collapse">
+              <div class="accordion-body">
+                <h6 class="fw-bold">Direitos do Contratado (Artista)</h6>
+                <ul>
+                    <li>O Contratado retém **todos os direitos autorais** sobre a arte.</li>
+                    <li>O Contratado reserva-se o direito de publicar a arte online, em seu portfólio e em publicações (livros de arte, redes sociais).</li>
+                    <li>O Contratado **NÃO** reivindicará a Propriedade Intelectual (PI) da arte final encomendada.</li>
+                </ul>
+                
+                <h6 class="fw-bold mt-3">Direitos do Contratante (Cliente)
+                    <li>O Contratante pode postar a arte em qualquer site/rede social.</li>
+                    <li>O Contratante **NÃO pode obter lucro** com a arte (revenda, redistribuição, venda de impressões, etc.).</li>
+                    <li>O Contratante **NÃO pode alterar a arte** sem o consentimento do Contratado.</li>
+                    <li>O Contratante **mantém os direitos de Propriedade Intelectual (PI)** e **NÃO pode usar a arte para fins comerciais**.</li>
+                    <li>A venda da arte pelo cliente é possível somente se acordada previamente antes do pagamento da encomenda.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contato" class="py-5">
+  <div class="container">
+
+    <h3 class="fw-bold mb-4" style="color:var(--highlight-color)">Entre em Contato</h3>
+    <p class="mb-4" style="color:var(--text-color)">
+      Entre em contato para dúvidas, pedidos ou parcerias.
+    </p>
+
+    <div class="row g-4">
+
+      <div class="col-md-6">
+        <div class="p-4 rounded">
+          <h5 class="fw-bold mb-3"><i class="fas fa-id-card me-2"></i> Informações Diretas</h5>
+
+          <p class="mb-1 small"><strong>E-mail:</strong> <br> caioad77@gmail.com</p>
+          <p class="mb-3 small"><strong>Telefone:</strong> <br> (16) 99734-6494</p>
+
+          <a href="https://wa.me/5516997346494" target="_blank" class="social-btn mb-2">
+            <img src="whatsapp.png" alt="WhatsApp"> Converse no WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="p-4 rounded">
+          <h5 class="fw-bold mb-3"><i class="fas fa-share-alt me-2"></i> Redes Sociais</h5>
+
+          <div class="d-flex flex-wrap gap-2">
+
+            <a class="social-btn" target="_blank" href="https://www.facebook.com/CaioADArtes">
+              <img src="facebook.png" alt="Facebook"> Facebook
+            </a>
+
+            <a class="social-btn" target="_blank" href="https://www.instagram.com/caioad_art">
+              <img src="instagram.png" alt="Instagram"> Instagram
+            </a>
+
+            <a class="social-btn" target="_blank" href="https://www.deviantart.com/caioad">
+              <img src="deviantart.png" alt="DeviantArt"> DeviantArt
+            </a>
+
+            <a class="social-btn" target="_blank" href="https://x.com/CaioAD_Art">
+              <img src="x.png" alt="X/Twitter"> X
+            </a>
+
+            <a class="social-btn" target="_blank" href="https://www.linkedin.com/in/caio-delfini-72265a91">
+              <img src="linkedin.png" alt="LinkedIn"> LinkedIn
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</section>
+
+<section id="twitch-live" class="py-5">
+  <div class="container">
+    <div class="twitch-highlight">
+      <h3 class="section-title-clean">Live Now! <i class="fab fa-twitch ms-2"></i></h3>
+      <p>Acompanhe Caio AD ao vivo! Veja o processo de criação, tire dúvidas e converse sobre arte e jogos.</p>
+
+      <a href="https://www.twitch.tv/caioad_" target="_blank" class="btn-twitch">
+        <i class="fab fa-twitch fa-lg"></i> Assistir Agora
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="py-4 mt-5 text-center">
+  <div class="container">
+    <p class="small" style="color:var(--text-color);margin:0;">
+      © <span id="year"></span> Caio AD Artes — Todos os direitos reservados.
+    </p>
+  </div>
+</footer>
+
+<div class="mascote-flutuante d-none d-lg-block">
+    <img src="armor.png" alt="Mascote Caio AD" id="mascote-armor-clickable"
+         data-bs-toggle="tooltip" data-bs-placement="top" title="Faça sua Encomenda Aqui!">
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // ano automático no footer
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // ----------------------------------------------------------------
+    // 1. SPLASH SCREEN (CORRIGIDO)
+    // ----------------------------------------------------------------
+    // Esconde o splash screen após 2.5 segundos (2500ms)
+    const splashScreen = document.getElementById('splash-screen');
+    setTimeout(() => {
+      if (splashScreen) {
+        splashScreen.classList.add('fade-out');
+      }
+    }, 2500);
+    // ----------------------------------------------------------------
+
+
+    // ----------------------------------------------------------------
+    // 2. MASCOTE INTERATIVO: TOOLTIP (BALÃO DE FALA) E WHATSAPP CLICK
+    // ----------------------------------------------------------------
+    const mascotClickableElement = document.getElementById('mascote-armor-clickable');
+    let mascotTooltip;
+    if (mascotClickableElement) {
+        // Inicializa o Tooltip (Balão de Fala) do Bootstrap
+        mascotTooltip = new bootstrap.Tooltip(mascotClickableElement);
+
+        // Adiciona o clique para abrir o WhatsApp
+        mascotClickableElement.addEventListener('click', function() {
+            const whatsappNumber = "5516997346494"; 
+            const message = "Olá, Caio! Vim pelo mascote para pedir minha encomenda.";
+            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, "_blank");
+        });
+
+        // (Opcional) Faz o balão de fala aparecer e sumir após alguns segundos
+        setTimeout(() => {
+            mascotTooltip.show();
+            setTimeout(() => {
+                mascotTooltip.hide();
+            }, 3000); // Mostra por 3 segundos
+        }, 4000); // Começa 4 segundos após o carregamento da página
+    }
+    // ----------------------------------------------------------------
+
+
+    /* --- 3. NOVO EFEITO: PARTÍCULAS ALEATÓRIAS --- */
+    const effectContainer = document.getElementById('random-effect-container');
+    const numParticles = 20; // Número de partículas a serem geradas
+
+    if (effectContainer) {
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('dark-particle');
+            
+            // Posição aleatória dentro do container (baseada no tamanho do container)
+            const x = Math.random() * effectContainer.offsetWidth;
+            const y = Math.random() * effectContainer.offsetHeight;
+            
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+
+            // Duração da animação aleatória (surgir e desaparecer)
+            const duration = Math.random() * 4 + 3; // entre 3s e 7s
+            const delay = Math.random() * 5; // atraso inicial entre 0s e 5s
+            
+            // Aplica a animação de "surgir das trevas e desaparecer"
+            particle.style.animation = `flicker ${duration}s ease-in-out ${delay}s infinite alternate`;
+            
+            effectContainer.appendChild(particle);
+            return particle;
+        }
+
+        // Cria e inicializa as partículas
+        for (let i = 0; i < numParticles; i++) {
+            createParticle();
+        }
+    }
+    /* --- FIM NOVO EFEITO --- */
+
+
+    /* --- 4. WHATSAPP SCRIPT (SEM EMOJIS) --- */
+    const form = document.getElementById("orderForm");
+    const alertBox = document.getElementById("formAlert");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      // pega campos
+      let nome = document.getElementById("nome").value.trim();
+      let email = document.getElementById("email").value.trim();
+      let telefone = document.getElementById("telefone").value.trim();
+      let tipo = document.getElementById("tipo").value.trim();
+      let prazo = document.getElementById("prazo").value.trim() || "Não informado";
+      let desc = document.getElementById("descricao").value.trim();
+
+      // Monta a mensagem.
+      let msgRaw =
+        "*NOVA SOLICITAÇÃO DE ENCOMENDA*\n\n" +
+        "Nome: " + nome + "\n" +
+        "E-mail: " + email + "\n" +
+        "Contato: " + telefone + "\n" +
+        "Tipo de arte: " + tipo + "\n" +
+        "Prazo desejado: " + prazo + "\n\n" +
+        "*Descrição:*\n" + desc + "\n\n" +
+        "_Enviado via site CaioAD_";
+
+
+      let msgEncoded = encodeURIComponent(msgRaw);
+
+      let url = "https://wa.me/5516997346494?text=" + msgEncoded;
+
+      window.open(url, "_blank");
+
+      alertBox.style.display = "block";
+      alertBox.innerHTML =
+        `<div class="alert alert-success">Mensagem enviada! Abrindo WhatsApp…</div>`;
+
+      form.reset();
+      form.classList.remove("was-validated");
+    });
+
+    /* --- LIGHTBOX SCRIPT --- */
+    const lightboxModal = document.getElementById('lightboxModal');
+    if (lightboxModal) {
+      lightboxModal.addEventListener('show.bs.modal', event => {
+        const wrapper = event.relatedTarget;
+        const imageUrl = wrapper.getAttribute('data-src');
+
+        const lightboxImage = document.getElementById('lightboxImage');
+        lightboxImage.src = imageUrl;
+      });
+    }
+
+    /* --- DARK/LIGHT MODE TOGGLE E AUTOMÁTICO --- */
+    const body = document.body;
+    const navbarLogo = document.querySelector('.navbar-brand img');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    
+    // Carrega a preferência salva ou define como 'system'
+    let currentTheme = localStorage.getItem('theme') || 'system';
+
+    const applyTheme = (theme) => {
+        // Remove classes de tema anteriores
+        body.classList.remove('light-mode', 'dark-mode-override');
+
+        if (theme === 'light') {
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            // No modo claro, remove o filtro invertido do logo (se houver)
+            if (navbarLogo) navbarLogo.style.filter = '';
+        } else if (theme === 'dark') {
+            // Usa o modo escuro forçado
+            body.classList.add('dark-mode-override');
+            localStorage.setItem('theme', 'dark');
+            // No modo escuro, força o filtro invertido no logo
+            if (navbarLogo) navbarLogo.style.filter = 'invert(1)';
+        } else {
+            // Tema de sistema (padrão)
+            localStorage.setItem('theme', 'system');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+
+            if (prefersLight) {
+                body.classList.add('light-mode');
+                if (navbarLogo) navbarLogo.style.filter = '';
+            } else {
+                 // Modo escuro de sistema. Mantém o filtro invertido
+                 if (navbarLogo) navbarLogo.style.filter = 'invert(1)';
+            }
+        }
+    };
+    
+    // Função para alternar o tema manualmente
+    const toggleTheme = () => {
+        if (currentTheme === 'system') {
+            // Se estiver no sistema, troca para o modo que o sistema NÃO está usando
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            currentTheme = prefersLight ? 'dark' : 'light';
+        } else if (currentTheme === 'light') {
+            currentTheme = 'dark';
+        } else {
+            currentTheme = 'light';
+        }
+        applyTheme(currentTheme);
+    };
+
+    // Função que lida com a mudança de tema do sistema (só é relevante se o tema for 'system')
+    const handleSystemChange = (e) => {
+        if (currentTheme === 'system') {
+            applyTheme('system'); // Reaplica o tema do sistema
+        }
+    };
+
+    // 1. Inicializa o tema na primeira carga
+    applyTheme(currentTheme);
+
+    // 2. Ouve o clique no botão de toggle
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
+    // 3. Ouve mudanças nas preferências do sistema em tempo real
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', handleSystemChange);
+    /* --- FIM DARK/LIGHT MODE TOGGLE E AUTOMÁTICO --- */
+  });
+</script>
+
+</body>
+
+
+</html>
+
+
+
+
+
+
+
